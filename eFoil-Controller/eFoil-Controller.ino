@@ -1,3 +1,6 @@
+//https://www.youtube.com/watch?v=osAOdmZuvDc
+// https://randomnerdtutorials.com/esp-now-two-way-communication-esp32/
+
 #include "Free_Fonts.h" // Include the header file attached to this sketch
 
 #include "SPI.h"
@@ -8,7 +11,6 @@
 // Sender MAC-Adresse: 08:B6:1F:C2:1B:0C
 // Empfänger Main:
 // Empfänger BackUp:
-// https://randomnerdtutorials.com/esp-now-two-way-communication-esp32/
 
 // Use hardware SPI
 TFT_eSPI tft = TFT_eSPI();
@@ -32,8 +34,11 @@ int y_bottomRight = 110;
 int previousThrottle = 0;
 int throttle = 0;
 
-int previousBatt = 0;
-int batt = 240;
+int previousBattF = 0;
+int battF = 240;
+
+int previousBattC = 0;
+int battC = 135;
 
 // variables to sync and communicate
 float outgoingThrottle = 0;
@@ -51,7 +56,7 @@ typedef struct struct_send_message {
     bool armed;
     bool sig;
     bool error;
-} struct_message;
+} struct_send_message;
 
 //Structure to receive data
 typedef struct struct_receive_message {
@@ -62,7 +67,7 @@ typedef struct struct_receive_message {
     bool armed;
     bool sig;
     bool error;
-} struct_message;
+} struct_receive_message;
 
 
 void setup(void) 
@@ -100,7 +105,7 @@ void loop()
   tft.setFreeFont(FF8);
   tft.print("A");
   tft.setTextColor(TFT_GREEN);
-  tft.setCursor(x_topRight+90, y_topRight); //offset becaus it is narrower and 3 digit RPM needs space 
+  tft.setCursor(x_topRight+80, y_topRight); //offset becaus it is narrower and 3 digit RPM needs space 
   tft.setFreeFont(FF8);
   tft.print("S");
 
@@ -132,22 +137,40 @@ void loop()
     tft.fillRect(0, 130, throttle, 5, TFT_RED);
   }
 
-  previousBatt = batt;
+  previousBattF = battF;
   
-  batt -= 1;
+  battF -= 1;
 
-  if (batt < 0)
+  if (battF < 0)
   {
-    batt = 240;
+    battF = 240;
   }
 
-  if (batt < previousBatt) 
+  if (battF < previousBattF) 
   {
-    tft.fillRect(batt, 0, (previousBatt-batt), 5, TFT_BLACK);
+    tft.fillRect(battF, 0, (previousBattF-battF), 5, TFT_BLACK);
   }
   else
   {
-    tft.fillRect(0, 0, batt, 5, TFT_BLUE);
+    tft.fillRect(0, 0, battF, 5, TFT_BLUE);
+  }
+
+  previousBattC = battC;
+  
+  battC -= 1;
+
+  if (battC < 0)
+  {
+    battC = 135;
+  }
+
+  if (battC > previousBattC) 
+  {
+    tft.fillRect(235, -battC, 5, -(previousBattC-battC), TFT_GREEN);
+  }
+  else
+  {
+    tft.fillRect(235, 135, 5, -battC, TFT_BLACK);
   }
   
 
