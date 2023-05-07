@@ -3,6 +3,13 @@
 #include "SPI.h"
 #include "TFT_eSPI.h"
 
+#include "WiFi.h"
+#include "esp_now.h"
+// Sender MAC-Adresse: 08:B6:1F:C2:1B:0C
+// Empfänger Main:
+// Empfänger BackUp:
+// https://randomnerdtutorials.com/esp-now-two-way-communication-esp32/
+
 // Use hardware SPI
 TFT_eSPI tft = TFT_eSPI();
 
@@ -28,7 +35,38 @@ int throttle = 0;
 int previousBatt = 0;
 int batt = 240;
 
-void setup(void) {
+// variables to sync and communicate
+float outgoingThrottle = 0;
+float incomingTemp = 0;
+float incomingRPM = 0;
+float incomingCurrent = 0;
+float incomingVoltage = 0;
+bool syncArmed = 0;
+bool syncSig = 0;
+bool syncError = 0;
+
+//Structure to send data
+typedef struct struct_send_message {
+    float throttle;
+    bool armed;
+    bool sig;
+    bool error;
+} struct_message;
+
+//Structure to receive data
+typedef struct struct_receive_message {
+    float temp;
+    float rpm;
+    float current;
+    float voltage;
+    bool armed;
+    bool sig;
+    bool error;
+} struct_message;
+
+
+void setup(void) 
+{
 
   tft.begin();
 
@@ -37,7 +75,11 @@ void setup(void) {
   //total resolution ist 135 x 240
 
   tft.fillScreen(TFT_BLACK);
-  
+
+// to get to know the MAC address
+//  Serial.begin(115200);
+//  WiFi.mode(WIFI_MODE_STA);
+//  Serial.println(WiFi.macAddress());
 }
 
 void loop() 
